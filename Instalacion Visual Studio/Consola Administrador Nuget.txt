@@ -1,0 +1,2 @@
+PM> Install-Package System.Data.SQLite
+PM> Install-Package FirebirdSql.Data.FirebirdClient
