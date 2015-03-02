@@ -1,0 +1,3 @@
+PM> Install-Package EntityFramework -Version 6.1.2
+PM> Install-Package System.Data.SQLite
+PM> Install-Package FirebirdSql.Data.FirebirdClient
