@@ -68,13 +68,14 @@ namespace Aplicacion
             notifyIcon1.ShowBalloonTip(20);
 
             // backgroundWorker1
-            // 
+            // Aqui creamos el thread para actualice los datos en otro thread
             this.backgroundWorker1.WorkerSupportsCancellation = true;
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             this.backgroundWorker1.ProgressChanged += new System.ComponentModel.ProgressChangedEventHandler(this.backgroundWorker1_ProgressChanged);
             this.backgroundWorker1.RunWorkerCompleted += new System.ComponentModel.RunWorkerCompletedEventHandler(this.backgroundWorker1_RunWorkerCompleted);
             this.backgroundWorker1.WorkerReportsProgress = true;
             this.backgroundWorker1.WorkerSupportsCancellation = true;
+            // Ejecutamos el Thread
             this.backgroundWorker1.RunWorkerAsync();
         }
 
@@ -170,6 +171,7 @@ namespace Aplicacion
 
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
+            // aqui se pone el codigo que queremos ejecutar en el thread
             BackgroundWorker worker = sender as BackgroundWorker;
 
             _adquisicion = new Adquision();
@@ -178,35 +180,39 @@ namespace Aplicacion
 
         }
 
+        // Tabla que usamos para almacenar los valores temporales
         private DataTable _oTableStatus = null;
         
         private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-          //resultLabel.Text = (e.ProgressPercentage.ToString() + "%");
+            //resultLabel.Text = (e.ProgressPercentage.ToString() + "%");
 
             lblStatus.Text = (string)e.UserState;
 
             if (_oTableStatus == null)
             {
                 _oTableStatus = new DataTable();
-                _oTableStatus.Columns.Add("FechaHora");
-                _oTableStatus.Columns.Add("Status");
+                _oTableStatus.Columns.Add("FECHA");
+                _oTableStatus.Columns.Add("VELOCIDAD");
+                _oTableStatus.Columns.Add("CONSUMO");
+                _oTableStatus.DefaultView.Sort = "FECHA desc";//ordenación de la tabla por la fecha
+                dgvStatus.DataSource = _oTableStatus;
             }
 
-            DataRow oRow = _oTableStatus.NewRow();
-            oRow[0] = DateTime.Now.ToString();
-            oRow[1] = (string)e.UserState;
+            List<Medida> aMedidas = (List<Medida>)e.UserState;
 
-            if (_oTableStatus.Rows.Count > 25)
+            for (int i = 0; i < aMedidas.Count; i++)
             {
-                _oTableStatus.Rows.RemoveAt(0);
+                DataRow oRow = _oTableStatus.NewRow();
+                oRow[0] = aMedidas[i].fecha;
+                oRow[1] = aMedidas[i].velocidad;
+                oRow[2] = aMedidas[i].consumo;
+                _oTableStatus.Rows.Add(oRow);
+                if (_oTableStatus.Rows.Count > 1000)
+                {
+                    _oTableStatus.Rows.RemoveAt(0);
+                }
             }
-
-            _oTableStatus.Rows.Add(oRow);
-            _oTableStatus.DefaultView.Sort = "FechaHora desc";//ordenación de la tabla por la fecha
-
-            dgvStatus.DataSource = _oTableStatus;
-            
         }
 
         private void backgroundWorker1_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
@@ -245,6 +251,11 @@ namespace Aplicacion
             Show();
             WindowState = FormWindowState.Normal;
             this.Activate();
+        }
+
+        private void toolStripPanel_ItemClicked(object sender, ToolStripItemClickedEventArgs e)
+        {
+
         }
                                  
     }

@@ -60,7 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DB\Adquision.cs" />
-    <Compile Include="DB\BDFirebird.cs" />
+    <Compile Include="DB\DBFirebird.cs" />
     <Compile Include="DB\DBSQLite.cs" />
     <Compile Include="FrmPrincipal.cs">
       <SubType>Form</SubType>

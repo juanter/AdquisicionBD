@@ -8,6 +8,7 @@ using System.Data.Common;
 using System.Configuration;
 using System.Data;//Para poder utilizar DataTables
 using System.IO;
+using Util;
 
 namespace Aplicacion.DB
 {

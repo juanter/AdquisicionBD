@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Text;
 using System.Data.OleDb;
@@ -8,21 +10,33 @@ using System.Data.SQLite;
 using System.ComponentModel;
 using System.Windows.Forms;
 using Util;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Aplicacion.DB
 {
+    // Declare a delegate.
+    // Metodo anonimo
+    delegate void GetListaAdquisicion(string s);
     public class Medida
     {
-        public DateTime Fecha;
+        public DateTime fecha;
         public float velocidad;
-        public float potencia;
+        public float consumo;
     }
 
     public class Adquision
     {
+        //BlockingCollection<Medida> bc = new BlockingCollection<Medida>();
+
         public bool Terminado;
         private DBSQLite _oBD;
-        private DataSet _dsVariables;
+        const string sqlCreateMedidas =
+            "CREATE TABLE MEDIDAS(ID INTEGER PRIMARY KEY, FECHA DATETIME NOT NULL, VELOCIDAD DOUBLE PRECISION NOT NULL DEFAULT 0,"+
+            " CONSUMO DOUBLE PRECISION NOT NULL DEFAULT 0);CREATE INDEX [IDX_MEDIDAS] ON [MEDIDAS] ([FECHA])";
+            
+        const string sqlInsertMedida = "insert into MEDIDAS (FECHA, VELOCIDAD, CONSUMO) values (@FECHA, @VELOCIDAD, @CONSUMO)";
+          // private DataSet _dsVariables;
         
         public int tpoEspera = 300; // 5 mseg
         public string conexionstring;
@@ -43,7 +57,7 @@ namespace Aplicacion.DB
             // Conexion = new FbConnection();
             medidas = new List<Medida>();
 
-            _dsVariables = new DataSet("VARIABLES");
+            // _dsVariables = new DataSet("VARIABLES");
         }
 
         ~Adquision()
@@ -53,11 +67,11 @@ namespace Aplicacion.DB
                 _oBD = null;
             }
 
-            if (_dsVariables != null)
-            {
-                _dsVariables.Dispose();
-                _dsVariables = null;
-            }
+            // if (_dsVariables != null)
+            // {
+            //    _dsVariables.Dispose();
+            //    _dsVariables = null;
+            // }
 
             if (medidas != null)
             {
@@ -74,9 +88,23 @@ namespace Aplicacion.DB
             {
                 Terminado = false;
                 Log.InsertaLogApp("Abriendo BaseDatos: " + _oBD.conexionString.ToString(), true);
-                _oBD.conexion.Open();
-                resultado = true;
-                Log.InsertaLogApp("Adquisicion Iniciada", true);
+                Exception error = _oBD.CompruebaConexion(true);
+                if (error == null)
+                {
+                    SQLiteCommand command = new SQLiteCommand(sqlCreateMedidas, _oBD.conexion);
+                    command.ExecuteNonQuery();
+                    resultado = true;
+                    Log.InsertaLogApp("Adquisicion Iniciada", true);
+                }
+                else
+                {
+                    string aux = error.Message;
+                    Log.InsertaLogApp("Excepcion Iniciar Adquisicion: " + aux, true);
+                    Log.InsertaLogErrores("Excepcion Iniciar Adquisicion: " + aux);
+                    System.Windows.Forms.MessageBox.Show(aux, "Error Iniciando Base de Datos", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+                
+                }
+                
             }
             catch (Exception ex)
             {
@@ -92,12 +120,18 @@ namespace Aplicacion.DB
         {
             try
             {
+                List<Medida> amedidas = null;
                 worker.ReportProgress(-1, "Inicialización de valores");
                 bool resultado = Iniciar();
                 if (resultado)
                     while ((!Terminado) && (!worker.CancellationPending))
                     {
-                        ControlAdquision(worker);
+                        amedidas = ComprobarMedidas();
+                        if (amedidas != null)
+                        {
+                            InsertMedidas(amedidas);
+                            worker.ReportProgress(1, amedidas);
+                        }
                         System.Threading.Thread.Sleep(1000);
                     }
 
@@ -120,28 +154,82 @@ namespace Aplicacion.DB
             }
         }
 
-        public void ControlAdquision(BackgroundWorker worker)
+        public int InsertMedidas(List<Medida> lmedidas)
         {
+            int numRegistros = 0;
             Exception e = _oBD.CompruebaConexion();
             if (e == null)
             {
-                if ((!Terminado) && (this.activo))
-                {
-                    if (this.tpoEspera > 0)
-                    {
-                        worker.ReportProgress(-1, "Inicio importación datos");
+                        SQLiteTransaction MTransaccion = _oBD.conexion.BeginTransaction();
+                        SQLiteCommand oCommand = new SQLiteCommand(sqlInsertMedida, _oBD.conexion, MTransaccion);
+                        oCommand.CommandType = CommandType.Text;
+                        oCommand.Parameters.Add("@FECHA", DbType.DateTime);
+                        oCommand.Parameters.Add("@VELOCIDAD", DbType.Double);
+                        oCommand.Parameters.Add("@CONSUMO", DbType.Double);
+                        try
+                        {
+                            for (int i = 0; i < lmedidas.Count; i++)
+                            {
+                                oCommand.Parameters["@FECHA"].Value = lmedidas[i].fecha;
+                                oCommand.Parameters["@VELOCIDAD"].Value = lmedidas[i].velocidad;
+                                oCommand.Parameters["@CONSUMO"].Value = lmedidas[i].consumo;
+                                numRegistros = numRegistros + oCommand.ExecuteNonQuery();
+                            }
+                            MTransaccion.Commit();
+                        }
+                        catch (Exception es)
+                        {
+                            // system.Windows.Forms.MessageBox.Show(e.Message, "Error", System.Windows.Forms.MessageBoxButtons.OK, System.Windows.Forms.MessageBoxIcon.Error);
+                            string aux = es.Message;
+                            // System.TimeSpan diffResult = DateTime.Now.Subtract(fechahoraini);
+                            Log.InsertaLogErrores("Excepcion InsertMedidas: " + aux);
+                            MTransaccion.Rollback();
+                            MTransaccion = null;
 
-                    }
+                        }
 
-                }
             }
             else
             {
                 Log.InsertaLogErrores("Excepcion Conexion Basedatos: " + e.Message);
             }
-
+            return numRegistros;
         }
 
+        public void AddMedida(Medida aMedida)
+        {
+
+            try
+            {
+                Monitor.Enter(medidas);
+                medidas.Add(aMedida);
+            }
+            finally
+            {
+                Monitor.Exit(medidas);
+            }
+        }
+
+        public List<Medida> ComprobarMedidas()
+        {
+            List<Medida> amedidas = null; 
+            try
+            {
+                Monitor.Enter(medidas);
+                if (medidas.Count > 0)
+                {
+                    amedidas = new List<Medida>();
+                    for (int i = 0; i < medidas.Count; i++)
+                       amedidas.Add(medidas[i]);
+                    medidas.Clear();
+                }
+            }
+            finally
+            {
+                Monitor.Exit(medidas);
+            }
+            return amedidas;
+        }
     }
 }
 

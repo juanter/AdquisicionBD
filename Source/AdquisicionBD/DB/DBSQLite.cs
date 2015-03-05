@@ -71,6 +71,26 @@ namespace Aplicacion.DB
             if (conexion.State == System.Data.ConnectionState.Closed)
             try
             {
+                
+                String RutaArchivo = this.conexionString.DataSource;
+                DirectoryInfo directoryInfo = null;
+                                
+                if (!File.Exists(RutaArchivo))
+                    try
+                    {                       
+                        //If file doesn't exist create one
+                        // Path.GetDirectoryName(yourPath).Split(@"\/", StringSplitOptions.RemoveEmptyEntries);RutaArchivo)
+                        string Directorio = Path.GetDirectoryName(RutaArchivo);
+                        directoryInfo = new DirectoryInfo(Directorio);
+                        directoryInfo = Directory.CreateDirectory(directoryInfo.FullName);
+                        
+                    }
+                    finally
+                    {
+                        if (directoryInfo != null)
+                            directoryInfo = null;
+
+                    }
                 conexion.Open();
             }
             catch (Exception e)
