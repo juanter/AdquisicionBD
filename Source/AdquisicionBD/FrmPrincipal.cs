@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -12,9 +13,12 @@ using Util;
 
 namespace Aplicacion
 {   
+    //public System.Collections.IList tableDataSource = null;
     public partial class FrmPrincipal : Form
     {
         private Adquision _adquisicion;
+        static AutoResetEvent autoEvent;
+
         private long MemoriaAntesCerrar = 0;
         // private AutoResetEvent _resetEvent = new AutoResetEvent(false);
 
@@ -61,12 +65,14 @@ namespace Aplicacion
             //this.Closing += new System.ComponentModel.CancelEventHandler(this.Form1_Closing);
             //// Asignamos el evento DoubleClick del NotifyIcon
             //this.NotifyIcon1.DoubleClick += new EventHandler(this.Restaurar_Click);
-            Log.InsertaLogApp("-------- Iniciando Servidor SAIH", true);
+            Log.InsertaLogApp("-------- Iniciando Control WMSA", true);
 
             notifyIcon1.BalloonTipIcon = ToolTipIcon.Info;
-            notifyIcon1.BalloonTipText = "Iniciando Servidor SAIH";
+            notifyIcon1.BalloonTipText = "Iniciando Control WMSA";
             notifyIcon1.ShowBalloonTip(20);
 
+            // Evento de sincronización, lo iniciamos a unsigned 
+            autoEvent = new AutoResetEvent(false);
             // backgroundWorker1
             // Aqui creamos el thread para actualice los datos en otro thread
             this.backgroundWorker1.WorkerSupportsCancellation = true;
@@ -84,11 +90,7 @@ namespace Aplicacion
             //
         }
 
-        private void FrmPrincipal_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            Log.InsertaLogApp("-------- Finalizado Servidor SAIH", true);
-        }        
-
+       
         private void FrmPrincipal_Resize(object sender, EventArgs e)
         {
             if (FormWindowState.Minimized == WindowState)
@@ -118,7 +120,6 @@ namespace Aplicacion
                 if (result1 == DialogResult.OK)
                 {
                     MemoriaAntesCerrar = Log.AppMemoryUsage();
-                    notifyIcon1.BalloonTipText = "Finalizando Servidor SAIH";
                     _adquisicion.Terminado = true;
                     backgroundWorker1.CancelAsync();
 
@@ -131,7 +132,7 @@ namespace Aplicacion
                         Application.DoEvents();
                     }
                     backgroundWorker1.Dispose();
-                    //notifyIcon1.BalloonTipText = "Terminado Servidor SAIH";
+                    //notifyIcon1.BalloonTipText = "Terminado Control WMSA";
                     //// backgroundWorker1.Dispose();
                     //// Cuando se va a cerrar el formulario...
                     //// eliminar el objeto de la barra de tareas
@@ -156,7 +157,7 @@ namespace Aplicacion
             }
             else
             {
-                notifyIcon1.BalloonTipText = "Terminado Servidor SAIH";
+                notifyIcon1.BalloonTipText = "Terminado Control WMSA";
                 // backgroundWorker1.Dispose();
                 // Cuando se va a cerrar el formulario...
                 // eliminar el objeto de la barra de tareas
@@ -169,12 +170,18 @@ namespace Aplicacion
             }
         }
 
+         private void FrmPrincipal_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Log.InsertaLogApp("-------- Finalizado Control WMSA", true);
+        }        
+
+
         private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
         {
             // aqui se pone el codigo que queremos ejecutar en el thread
             BackgroundWorker worker = sender as BackgroundWorker;
 
-            _adquisicion = new Adquision();
+            _adquisicion = new Adquision(autoEvent);
             _adquisicion.ControlAdquisionWait(worker, e);
             _adquisicion = null;
 
@@ -192,11 +199,14 @@ namespace Aplicacion
             if (_oTableStatus == null)
             {
                 _oTableStatus = new DataTable();
-                _oTableStatus.Columns.Add("FECHA");
-                _oTableStatus.Columns.Add("VELOCIDAD");
-                _oTableStatus.Columns.Add("CONSUMO");
-                _oTableStatus.DefaultView.Sort = "FECHA desc";//ordenación de la tabla por la fecha
+                _oTableStatus.Columns.Add("FECHA", typeof(DateTime));
+                _oTableStatus.Columns.Add("VELOCIDAD", typeof(Double));
+                _oTableStatus.Columns.Add("CONSUMO", typeof(Double));
+                _oTableStatus.DefaultView.Sort = "FECHA ASC";//ordenación de la tabla por la fecha
                 dgvStatus.DataSource = _oTableStatus;
+
+                //tableDataSource = (table as IListSource).GetList();
+                //chart.DataBindTable(tableDataSource, "Date");
             }
 
             List<Medida> aMedidas = (List<Medida>)e.UserState;

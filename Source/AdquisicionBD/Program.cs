@@ -7,6 +7,7 @@ using Util;
 using Aplicacion;
 
 
+
 namespace AdquisicionBD
 {
     static class Program
@@ -20,7 +21,7 @@ namespace AdquisicionBD
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             string appName = Environment.CurrentDirectory;
-            string configFile = string.Concat(appName, @"\SAIH.config");
+            string configFile = string.Concat(appName, @"\Adquisicion.config");
             Config.IniciarConfiguracion(configFile);
             Log.LeerConfiguracion();
             UnicaInstancia.Run(new FrmPrincipal());

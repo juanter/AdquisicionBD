@@ -18,11 +18,59 @@ namespace Aplicacion.DB
     // Declare a delegate.
     // Metodo anonimo
     delegate void GetListaAdquisicion(string s);
+
+    //private class State
+
+    //{
+
+    //    public EventWaitHandle eventWaitHandle = new ManualResetEvent(false);
+
+    //    public int result;
+
+    //    public object parameters[];
+
+    //}
+
+//    private static void PerformUserWorkItem( Object stateObject )
+
+//    {
+
+//        State state = stateObject as State;
+
+//        if(state != null)
+
+//        {
+
+//            // do something lengthy with state.parameters...
+
+//            state.result = 42;
+
+//            state.eventWaitHandle.Set(); // signal we're done
+
+//        }
+
+//    }
+
+//    public static object DoWorkSynchronous()
+
+//    {
+
+//        State state = new State();
+
+//        ThreadPool.QueueUserWorkItem(PerformUserWorkItem, state);
+
+//        state.eventWaitHandle.WaitOne();
+
+//        Console.WriteLine(state.result);
+
+//        return state.result;
+
+//}
     public class Medida
     {
         public DateTime fecha;
-        public float velocidad;
-        public float consumo;
+        public Double velocidad;
+        public Double consumo;
     }
 
     public class Adquision
@@ -46,14 +94,16 @@ namespace Aplicacion.DB
         public string emensaje;
         public List<Medida> medidas;
         public bool activo = false;
+        private AutoResetEvent _autoEvent;
 
 
         #region Constructores
 
         /////*********   CONSTRUCTORES  *****************
-        public Adquision()
+        public Adquision(AutoResetEvent autoEvent)
         {
             _oBD = new DBSQLite();
+            _autoEvent = autoEvent;
             // Conexion = new FbConnection();
             medidas = new List<Medida>();
 
@@ -132,7 +182,11 @@ namespace Aplicacion.DB
                             InsertMedidas(amedidas);
                             worker.ReportProgress(1, amedidas);
                         }
-                        System.Threading.Thread.Sleep(1000);
+                        // Evento de sincronización, espera a que ponga en signed y automaticamente al ser tratado se marca como unsigned
+                        _autoEvent.WaitOne();
+                        // Si no fuera auto con metodo reset lo pondriamos en unsigned
+                        // _autoEvent.Reset();
+                        // System.Threading.Thread.Sleep(1000);
                     }
 
                 if (worker.CancellationPending == true)
@@ -150,7 +204,7 @@ namespace Aplicacion.DB
             }
             finally
             {
-                _oBD.conexion.Close();
+               //  _oBD.conexion.Close();
             }
         }
 
@@ -198,16 +252,19 @@ namespace Aplicacion.DB
 
         public void AddMedida(Medida aMedida)
         {
-
+            // lock(medidas)
+            // {}
             try
             {
-                Monitor.Enter(medidas);
+                System.Threading.Monitor.Enter(medidas);
                 medidas.Add(aMedida);
             }
             finally
             {
-                Monitor.Exit(medidas);
+                System.Threading.Monitor.Exit(medidas);
             }
+            // Evento de sincronización, Marca como Signed, y automaticamente al ser tratado en el thread se marca como unsigned
+            _autoEvent.Set();
         }
 
         public List<Medida> ComprobarMedidas()

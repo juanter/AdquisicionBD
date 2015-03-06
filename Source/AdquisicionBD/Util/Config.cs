@@ -81,6 +81,7 @@ namespace Util
             }
             catch (ConfigurationErrorsException e)
             {
+                Log.InsertaLogErrores("Excepcion IniciarConfiguracion: " + e.Message);
                 //Console.WriteLine("[CreateAppSettings: {0}]",
                 //    e.ToString());
             }
