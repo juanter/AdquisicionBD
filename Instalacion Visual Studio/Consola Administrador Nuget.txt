@@ -1,2 +1,9 @@
-PM> Install-Package System.Data.SQLite
+Para Instalar el sqlite basico
+PM> Install-Package System.Data.SQLite.Core
 PM> Install-Package FirebirdSql.Data.FirebirdClient
+
+Para Instalar el sqlite con entity framework
+PM> Install-Package System.Data.SQLite
+
+actualizar los paquetes
+PM> update-package
