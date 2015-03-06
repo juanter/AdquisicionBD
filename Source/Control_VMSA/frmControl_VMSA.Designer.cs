@@ -175,7 +175,7 @@
             // 
             this.mnuConectar.Image = ((System.Drawing.Image)(resources.GetObject("mnuConectar.Image")));
             this.mnuConectar.Name = "mnuConectar";
-            this.mnuConectar.Size = new System.Drawing.Size(152, 22);
+            this.mnuConectar.Size = new System.Drawing.Size(139, 22);
             this.mnuConectar.Text = "Conectar";
             this.mnuConectar.Click += new System.EventHandler(this.mnuConectar_Click);
             // 
@@ -183,19 +183,19 @@
             // 
             this.mnuDesconectar.Image = ((System.Drawing.Image)(resources.GetObject("mnuDesconectar.Image")));
             this.mnuDesconectar.Name = "mnuDesconectar";
-            this.mnuDesconectar.Size = new System.Drawing.Size(152, 22);
+            this.mnuDesconectar.Size = new System.Drawing.Size(139, 22);
             this.mnuDesconectar.Text = "Desconectar";
             this.mnuDesconectar.Click += new System.EventHandler(this.mnuDesconectar_Click);
             // 
             // toolStripMenuItem2
             // 
             this.toolStripMenuItem2.Name = "toolStripMenuItem2";
-            this.toolStripMenuItem2.Size = new System.Drawing.Size(149, 6);
+            this.toolStripMenuItem2.Size = new System.Drawing.Size(136, 6);
             // 
             // salirToolStripMenuItem
             // 
             this.salirToolStripMenuItem.Name = "salirToolStripMenuItem";
-            this.salirToolStripMenuItem.Size = new System.Drawing.Size(152, 22);
+            this.salirToolStripMenuItem.Size = new System.Drawing.Size(139, 22);
             this.salirToolStripMenuItem.Text = "Salir";
             this.salirToolStripMenuItem.Click += new System.EventHandler(this.salirToolStripMenuItem_Click);
             // 
@@ -667,6 +667,7 @@
             this.chart_Datos.Size = new System.Drawing.Size(728, 255);
             this.chart_Datos.TabIndex = 9;
             this.chart_Datos.Text = "Datos entrada analógica";
+            this.chart_Datos.Click += new System.EventHandler(this.chart_Datos_Click);
             // 
             // Brujula
             // 

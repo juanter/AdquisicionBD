@@ -14,6 +14,7 @@ using System.IO.Ports;
 using Util;
 using Aplicacion;
 using Aplicacion.DB;
+using System.Windows.Forms.DataVisualization.Charting;
 
 
 namespace Control_VMSA
@@ -1124,15 +1125,35 @@ namespace Control_VMSA
             // lblStatus.Text = (string)e.UserState;
             if (_oTableStatus == null)
             {
-                _oTableStatus = new DataTable();
+                _oTableStatus = new DataTable("MEDIDAS");
                 _oTableStatus.Columns.Add("FECHA", typeof(DateTime));
                 _oTableStatus.Columns.Add("VELOCIDAD", typeof(Double));
                 _oTableStatus.Columns.Add("CONSUMO", typeof(Double));
                 _oTableStatus.DefaultView.Sort = "FECHA ASC";//ordenación de la tabla por la fecha
                 dgvStatus.DataSource = _oTableStatus;
 
-                //tableDataSource = (table as IListSource).GetList();
-                //chart.DataBindTable(tableDataSource, "Date");
+                tableDataSource = (_oTableStatus as IListSource).GetList();
+
+                String aserie = "Velocidad";
+                //this.chart_Datos.Series.Add(aserie);
+                //this.chart_Datos.Series[0].ChartType = SeriesChartType.Spline;
+                this.chart_Datos.Series[0].XValueMember = "FECHA";
+                this.chart_Datos.Series[0].XValueType = ChartValueType.DateTime;
+                this.chart_Datos.Series[0].YValueMembers = "VELOCIDAD";
+                this.chart_Datos.Series[0].YValueType = ChartValueType.Auto;
+                
+
+                aserie = "Consumo";
+                //this.chart_consumo.Series.Add(aserie);
+                //this.chart_consumo.Series[0].ChartType = SeriesChartType.Spline;
+                this.chart_consumo.Series[0].XValueMember = "FECHA";
+                this.chart_consumo.Series[0].XValueType = ChartValueType.DateTime;
+                this.chart_consumo.Series[0].YValueMembers = "CONSUMO";
+                this.chart_consumo.Series[0].YValueType = ChartValueType.Auto;
+
+                this.chart_Datos.DataBindTable(tableDataSource);
+                this.chart_consumo.DataBindTable(tableDataSource);
+                
             }
 
             List<Medida> aMedidas = (List<Medida>)e.UserState;
@@ -1150,12 +1171,12 @@ namespace Control_VMSA
                 }
             }
 
-            //tableDataSource = (_oTableStatus as IListSource).GetList();
-            //chart.DataBindTable(tableDataSource, "Date");
+            
+            
 
-            //this.chart_Datos.Series[0].Points.AddY(muestreo_long[i]);
+           // this.chart_Datos.Series[0].Points.AddY(muestreo_long[i]);
 
-            //ActualizaGrafica(velocidad);
+           // ActualizaGrafica(velocidad);
         }
 
         private void Control_VMSA_FormClosing(object sender, FormClosingEventArgs e)
@@ -1184,6 +1205,11 @@ namespace Control_VMSA
         private void salirToolStripMenuItem_Click(object sender, EventArgs e)
         {
             SalirAplicacion();
+        }
+
+        private void chart_Datos_Click(object sender, EventArgs e)
+        {
+
         }
 
 
