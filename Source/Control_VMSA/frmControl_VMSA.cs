@@ -1141,6 +1141,8 @@ namespace Control_VMSA
                 this.chart_Datos.Series[0].XValueType = ChartValueType.DateTime;
                 this.chart_Datos.Series[0].YValueMembers = "VELOCIDAD";
                 this.chart_Datos.Series[0].YValueType = ChartValueType.Auto;
+
+                this.chart_Datos.DataSource = tableDataSource;
                 
 
                 aserie = "Consumo";
@@ -1150,9 +1152,11 @@ namespace Control_VMSA
                 this.chart_consumo.Series[0].XValueType = ChartValueType.DateTime;
                 this.chart_consumo.Series[0].YValueMembers = "CONSUMO";
                 this.chart_consumo.Series[0].YValueType = ChartValueType.Auto;
+                this.chart_consumo.DataSource = tableDataSource;
 
-                this.chart_Datos.DataBindTable(tableDataSource);
-                this.chart_consumo.DataBindTable(tableDataSource);
+                // this.chart_Datos.DataBindTable(tableDataSource);
+                // this.chart_consumo.DataBindTable(tableDataSource);
+                
                 
             }
 
@@ -1171,9 +1175,9 @@ namespace Control_VMSA
                 }
             }
 
-            
-            
 
+            this.chart_Datos.DataBind();
+            this.chart_consumo.DataBind();
            // this.chart_Datos.Series[0].Points.AddY(muestreo_long[i]);
 
            // ActualizaGrafica(velocidad);

@@ -109,9 +109,6 @@
             this.trk_BasculaMotores = new System.Windows.Forms.TrackBar();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.groupBox3 = new System.Windows.Forms.GroupBox();
-            this.button3 = new System.Windows.Forms.Button();
-            this.button4 = new System.Windows.Forms.Button();
             this.dgvStatus = new System.Windows.Forms.DataGridView();
             this.txtLog = new System.Windows.Forms.TextBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
@@ -142,8 +139,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.trk_PotenciaMotores)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.trk_BasculaMotores)).BeginInit();
             this.tabPage1.SuspendLayout();
-            this.panel1.SuspendLayout();
-            this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dgvStatus)).BeginInit();
             this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -928,41 +923,11 @@
             // 
             // panel1
             // 
-            this.panel1.Controls.Add(this.groupBox3);
             this.panel1.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel1.Location = new System.Drawing.Point(3, 3);
             this.panel1.Name = "panel1";
             this.panel1.Size = new System.Drawing.Size(746, 61);
             this.panel1.TabIndex = 14;
-            // 
-            // groupBox3
-            // 
-            this.groupBox3.Controls.Add(this.button3);
-            this.groupBox3.Controls.Add(this.button4);
-            this.groupBox3.Location = new System.Drawing.Point(5, 6);
-            this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(262, 49);
-            this.groupBox3.TabIndex = 14;
-            this.groupBox3.TabStop = false;
-            this.groupBox3.Text = "Control de la ejecución";
-            // 
-            // button3
-            // 
-            this.button3.Location = new System.Drawing.Point(144, 19);
-            this.button3.Name = "button3";
-            this.button3.Size = new System.Drawing.Size(111, 25);
-            this.button3.TabIndex = 1;
-            this.button3.Text = "Stop";
-            this.button3.UseVisualStyleBackColor = true;
-            // 
-            // button4
-            // 
-            this.button4.Location = new System.Drawing.Point(5, 19);
-            this.button4.Name = "button4";
-            this.button4.Size = new System.Drawing.Size(117, 26);
-            this.button4.TabIndex = 0;
-            this.button4.Text = "Iniciar";
-            this.button4.UseVisualStyleBackColor = true;
             // 
             // dgvStatus
             // 
@@ -1084,8 +1049,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.trk_PotenciaMotores)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.trk_BasculaMotores)).EndInit();
             this.tabPage1.ResumeLayout(false);
-            this.panel1.ResumeLayout(false);
-            this.groupBox3.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dgvStatus)).EndInit();
             this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
@@ -1175,9 +1138,6 @@
         private System.Windows.Forms.TabPage tabPage1;
         private System.Windows.Forms.DataGridView dgvStatus;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.GroupBox groupBox3;
-        private System.Windows.Forms.Button button3;
-        private System.Windows.Forms.Button button4;
         private System.Windows.Forms.ToolStripSeparator toolStripMenuItem2;
         private System.Windows.Forms.ToolStripMenuItem salirToolStripMenuItem;
     }
